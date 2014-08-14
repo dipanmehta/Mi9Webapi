@@ -17,31 +17,27 @@ namespace Mi9WebApi.Controllers
         {
             payloadRepository = new Mi9PayloadRepository();
         }
+        
         [HttpPost]
-        public HttpResponseMessage Post(JObject jobject)
+        [HttpGet]
+        public HttpResponseMessage Post(Payload payload)
         {
             try
             {
-                if (jobject != null)
+                if (ModelState.IsValid && payload != null)
                 {
-                    Payload actualPayload = jobject.ToObject<Payload>();
-                    if (actualPayload != null && actualPayload.payload != null)
-                    {
-                        List<Show> shows = payloadRepository.processPayload(actualPayload);
-                        return this.Request.CreateResponse(HttpStatusCode.OK, new { response = shows.Select(s => new { image = s.image.showImage, slug = s.slug, title = s.title }) });
-                    }
+
+                    List<Show> shows = payloadRepository.processPayload(payload);
+                    return this.Request.CreateResponse(HttpStatusCode.OK, new { response = shows.Select(s => new { image = s.image.showImage, slug = s.slug, title = s.title }) });
+                    
                 }
+               
                 return this.Request.CreateResponse(HttpStatusCode.BadRequest, new { error = "Could not decode request: JSON parsing failed" });
             }
             catch (Exception ex)
             {
                 return this.Request.CreateResponse(HttpStatusCode.BadRequest, new { error = "Could not decode request: JSON parsing failed" });
             }
-        }
-
-        public String Get()
-        {
-            return "";
         }
     }
 }
